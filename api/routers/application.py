@@ -77,7 +77,7 @@ def app_stop(app_name: str):
     cursor = g.db.cursor(cursor=pymysql.cursors.DictCursor)
     cursor.execute(f"select status from app_list where app_name='{app_name}' ")
     res = cursor.fetchall()[0]
-    if res['status'] == 'stopped':
+    if res['status'] == 'stopped' or res['status'] == 'success' or res['status'] == 'error':
         push.push_error(f'{app_name}已经停止了')
         return response_code.resp_200(data={"status": status})
     cursor.execute(f"select * from container_list where app_name='{app_name}' order by start_time desc limit 1")
@@ -92,6 +92,8 @@ def app_stop(app_name: str):
         else:
             time.sleep(0.3)
             container.reload()
+    time.sleep(0.5)
+    cursor.execute(f"update container_list set status='136' where container_id='{res['container_id']}'")
     return response_code.resp_200(data={"status": status})
 
 

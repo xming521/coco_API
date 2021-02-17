@@ -1,12 +1,11 @@
-import asyncio
-
 import uvicorn
 from fastapi import FastAPI
 from fastapi_socketio import SocketManager
 from starlette.middleware.cors import CORSMiddleware
 
 import init_global
-from api.routers import user, application,file,scheduler,test,image,dashboard
+from api.routers import user, application, file, scheduler, test, image, dashboard
+from api.routers.dashboard import push_realinfo
 
 app = FastAPI()
 app.add_event_handler("startup", init_global.init)
@@ -22,10 +21,10 @@ app.add_middleware(
 app.include_router(user.router)
 app.include_router(application.router, tags=['app'])
 app.include_router(file.router, tags=['file'])
-app.include_router(scheduler.router,tags=['scheduler'])
-app.include_router(image.router,tags=['image'])
-app.include_router(test.router,tags=['test'])
-app.include_router(dashboard.router,tags=['dashboard'])
+app.include_router(scheduler.router, tags=['scheduler'])
+app.include_router(image.router, tags=['image'])
+app.include_router(test.router, tags=['test'])
+app.include_router(dashboard.router, tags=['dashboard'])
 
 socket_manager = SocketManager(app=app, mount_location='/ws', socketio_path='socket.io', cors_allowed_origins=[])
 
@@ -33,11 +32,15 @@ socket_manager = SocketManager(app=app, mount_location='/ws', socketio_path='soc
 @app.sio.event
 def connect(sid, namespace):
     from init_global import g
+    g.person_online = True
+    g.threads_pool.submit(push_realinfo)
     g.db.ping(reconnect=True)  # 保证始终有一个数据库连接
 
 
 @app.sio.event
 def disconnect(sid):
+    from init_global import g
+    g.person_online = False
     pass
 
 

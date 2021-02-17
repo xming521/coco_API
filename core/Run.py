@@ -48,7 +48,6 @@ class RunApp:
         sql_str = f"insert into container_list(container_id,app_name,image_name,run_command,start_time) " \
                   f"values ('{self.container.short_id}','{self.app_name}','{item.image_name}','{item.run_command}','{start_time}') "
         self.db.cursor().execute(sql_str)
-
     def write_code(self, **kw):
         with open(f'{mount_path}/{self.app_name}/{filename}', 'w') as f:
             f.write(self.code)
@@ -75,19 +74,26 @@ class RunApp:
 
     def app_exit(self):  # 退出
         res = self.container.wait()
-        self.db.cursor().execute(f"update app_list set status ='stopped' where app_name='{self.app_name}'")
         self.db.cursor().execute(
-            f"update container_list set over_time ='{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}' where container_id='{self.container.short_id}'")
+            f"update container_list "
+            f"set over_time ='{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}',"
+            f" status='{res['StatusCode']}'"
+            f"where container_id='{self.container.short_id}'")
         self.container.remove(v=True)  # todo 删除
         if res['StatusCode'] == 0:
+            self.db.cursor().execute(f"update app_list set status ='success' where app_name='{self.app_name}'")
             self.push.push_success(f'{self.app_name}运行完成')
         elif res['StatusCode'] == 1:
+            self.db.cursor().execute(f"update app_list set status ='error' where app_name='{self.app_name}'")
             self.push.push_error(f'{self.app_name}运行出现错误')
         elif res['StatusCode'] == 2:
+            self.db.cursor().execute(f"update app_list set status ='error' where app_name='{self.app_name}'")
             self.push.push_error(f'{self.app_name}运行可能出现路径错误')
         elif res['StatusCode'] == 137:
+            self.db.cursor().execute(f"update app_list set status ='stopped' where app_name='{self.app_name}'")
             self.push.push_error(f'{self.app_name}运行超时或被手动停止')
         else:
+            self.db.cursor().execute(f"update app_list set status ='error' where app_name='{self.app_name}'")
             self.push.push_error(f'{self.app_name}运行出现未知问题')
 
     def app_timeout(self):  # 超时退出
