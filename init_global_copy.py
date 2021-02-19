@@ -23,9 +23,9 @@ g = GlobalV()
 
 def __init__(self):
     host = "47.94.199.65"
-    self.db = pymysql.connect(host=host, database='coco', autocommit=True, user=Config.sql_user,
-                              password=Config.sql_password,
-                              charset="utf8", )
+    self.db_pool = pymysql.connect(host=host, database='coco', autocommit=True, user=Config.sql_user,
+                                   password=Config.sql_password,
+                                   charset="utf8", )
 
 
 dc = docker.from_env()

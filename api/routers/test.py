@@ -10,7 +10,7 @@ from init_global import g
 @router.get('/test')
 def test():
     res = {}
-    cur = g.db.cursor()
+    cur = g.db_pool.cursor()
     cur.execute(f'select count(app_name) from app_list')
     res['app_count'] = cur.fetchall()[0][0]
     cur.execute(f'select count(app_name) from app_list where status="running"')

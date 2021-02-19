@@ -34,7 +34,7 @@ def connect(sid, namespace):
     from init_global import g
     g.person_online = True
     g.threads_pool.submit(push_realinfo)
-    g.db.ping(reconnect=True)  # 保证始终有一个数据库连接
+    # g.db.ping(reconnect=True)  # 保证始终有一个数据库连接
 
 
 @app.sio.event

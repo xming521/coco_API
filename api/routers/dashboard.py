@@ -13,16 +13,18 @@ router = APIRouter()
 def getinfo():
     from init_global import g
     res = {}
-    cur = g.db.cursor()
+    db = g.db_pool.connection()
+    cur = db.cursor()
     cur.execute(f'select count(app_name) from app_list')
     res['app_count'] = cur.fetchall()[0][0]
     cur.execute(f'select count(app_name) from app_list where status="running"')
     res['app_run_count'] = cur.fetchall()[0][0]
     res['image_count'] = len(g.dc.images.list())
     res['networks_count'] = len(g.dc.networks.list())
-    cur = g.db.cursor(cursor=pymysql.cursors.DictCursor)
+    cur = db.cursor(cursor=pymysql.cursors.DictCursor)
     cur.execute(f'select * from app_list order by start_time desc limit 10')
     res['recent_event']=cur.fetchall()
+    db.close()
     return response_code.resp_200(data={"res": res})
 
 

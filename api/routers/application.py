@@ -29,21 +29,27 @@ class App_item(BaseModel):
 
 @router.post("/app_submit")
 def submit(item: App_item):
-    cursor = g.db.cursor()
-    cursor.execute(f"select * from app_list where app_name='{item.app_name}'")
-    if cursor.fetchall():
-        push.push_error(f"{item.app_name}已经创建了")
-        return response_code.resp_200(data={"status": 0})
+    db = g.db_pool.connection()
+    if item.run_type == 'first':
+        cursor = db.cursor()
+        cursor.execute(f"select * from app_list where app_name='{item.app_name}'")
+        if cursor.fetchall():
+            push.push_error(f"{item.app_name}已经创建了,请前往修改")
+            db.close()
+            return response_code.resp_200(data={"status": 0})
     app = RunApp(item)
     app.app_run()  # 使用异步 开启新协程
+    db.close()
     return response_code.resp_200(data={"status": 1})
 
 
 @router.get("/app_list")
 def app_list():
-    cursor = g.db.cursor(cursor=pymysql.cursors.DictCursor)
+    db=g.db_pool.connection()
+    cursor = db.cursor(cursor=pymysql.cursors.DictCursor)
     cursor.execute(f"select * from app_list order by start_time desc")
     res: dict = cursor.fetchall()
+    db.close()
     return response_code.resp_200(data={
         'items': res
     })
@@ -51,9 +57,11 @@ def app_list():
 
 @router.get("/container_list")
 def container_list(app_name: str):
-    cursor = g.db.cursor(cursor=pymysql.cursors.DictCursor)
+    db = g.db_pool.connection()
+    cursor = db.cursor(cursor=pymysql.cursors.DictCursor)
     cursor.execute(f"select * from container_list where app_name='{app_name}'order by start_time desc")
     res: dict = cursor.fetchall()
+    db.close()
     return response_code.resp_200(data={
         'items': res
     })
@@ -61,20 +69,23 @@ def container_list(app_name: str):
 
 @router.get("/app_start")
 def app_start(app_name: str):
-    cursor = g.db.cursor(cursor=pymysql.cursors.DictCursor)
+    db = g.db_pool.connection()
+    cursor = db.cursor(cursor=pymysql.cursors.DictCursor)
     cursor.execute(f"select * from app_list where app_name='{app_name}'")
     res: dict = cursor.fetchall()[0]
     res.update({'code': '', 'run_type': 'second'})
     item = bunch.Bunch(res)  # 将字典转化为对象
     app = RunApp(item)
     app.app_run()  # 使用异步 开启新协程
+    db.close()
     return response_code.resp_200(data={"status": 1})
 
 
 @router.get("/app_stop")
 def app_stop(app_name: str):
     status = 0
-    cursor = g.db.cursor(cursor=pymysql.cursors.DictCursor)
+    db = g.db_pool.connection()
+    cursor = db.cursor(cursor=pymysql.cursors.DictCursor)
     cursor.execute(f"select status from app_list where app_name='{app_name}' ")
     res = cursor.fetchall()[0]
     if res['status'] == 'stopped' or res['status'] == 'success' or res['status'] == 'error':
@@ -91,28 +102,37 @@ def app_stop(app_name: str):
             break
         else:
             time.sleep(0.3)
-            container.reload()
+            try:
+                container.reload()
+            except:
+                status = 1
+                break
     time.sleep(0.5)
     cursor.execute(f"update container_list set status='136' where container_id='{res['container_id']}'")
+    db.close()
     return response_code.resp_200(data={"status": status})
 
 
 @router.get("/app_getinfo")
 def app_getinfo(app_name: str):
-    cursor = g.db.cursor(cursor=pymysql.cursors.DictCursor)
+    db = g.db_pool.connection()
+    cursor = db.cursor(cursor=pymysql.cursors.DictCursor)
     cursor.execute(f"select * from app_list where app_name='{app_name}'")
     res: dict = cursor.fetchall()[0]
     code = open(f'{mount_path}/{app_name}/{filename}', 'r').read()
     res.update({'code': code})
+    db.close()
     return response_code.resp_200(data={"res": res})
 
 
 @router.get("/app_getname")
 def app_getinfo():
-    cursor = g.db.cursor(cursor=pymysql.cursors.DictCursor)
+    db = g.db_pool.connection()
+    cursor = db.cursor(cursor=pymysql.cursors.DictCursor)
     cursor.execute(f"select app_name from app_list ")
     res = cursor.fetchall()
     res = [i['app_name'] for i in res]
+    db.close()
     return response_code.resp_200(data={"res": res})
 
 

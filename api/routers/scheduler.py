@@ -13,15 +13,12 @@ router = APIRouter()
 from init_global import g
 
 
-def job1():
-    # time.sleep(10)
-    print('hi11111')
-
-
 def app_start(app_name):
-    cursor = g.db.cursor(cursor=pymysql.cursors.DictCursor)
+    db = g.db_pool.connection()
+    cursor = db.cursor(cursor=pymysql.cursors.DictCursor)
     cursor.execute(f"select * from app_list where app_name='{app_name}'")
     res: dict = cursor.fetchall()[0]
+    db.close()
     res.update({'code': '', 'run_type': 'second'})
     item = bunch.Bunch(res)  # 将字典转化为对象
     app = RunApp(item)
