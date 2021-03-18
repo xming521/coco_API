@@ -26,7 +26,7 @@ async def check_users(item: Item):
 @router.get("/info", tags=["users"])
 async def get_info(token: str):
     res1 = check_jwt_token(token)
-    if res1 == 'error': #token错误 或者过期
+    if res1 == 'error':  # token错误 或者过期
         return response_code.resp_50008()
     elif res1["sub"] == "admin":
         res2 = {
@@ -42,3 +42,23 @@ async def get_info(token: str):
 @router.post("/logout", tags=["users"])
 async def logout():
     return response_code.resp_200(data='success')
+
+
+@router.get("/get_roles", tags=["users"])
+async def get_roles():
+    data = [
+        {"key": "admin", "name": "admin", "description": "Super Administrator. Have access to view all pages.", },
+        {"key": "editor", "name": "editor",
+         "description": "Normal Editor. Can see all pages except permission page", },
+        {"key": "visitor", "name": "visitor",
+         "description": "Just a visitor. Can only see the home page and the document page", "routes": [
+            {"path": "", "redirect": "dashboard", "children": [{"path": "dashboard", "name": "Dashboard",
+                                                                "meta": {"title": "dashboard",
+                                                                         "icon": "dashboard"}}]}]}]
+    return response_code.resp_200(data=data)
+
+
+# @router.get("/get_routes", tags=["users"])
+# async def get_routes():
+#     data = [{"path": "/login"}]
+#     return response_code.resp_200(data=data)

@@ -1,7 +1,6 @@
 import asyncio
 import os
 import time
-from queue import Queue
 
 from settings import mount_path, filename
 
@@ -15,7 +14,6 @@ class RunApp:
         self.g = g
         self.push = push
         self.app_name = item.app_name
-        self.queue = Queue()
         self.code = item.code
         self.timeout = item.timeout
         self.mount_dict = {
@@ -59,7 +57,7 @@ class RunApp:
 
     def app_run(self, **kw):
         self.container.start()
-        self.push.push_success(f"{self.app_name}运行成功")
+        self.push.push_success(f"{self.app_name}启动成功")
         self.g.threads_pool.submit(self.app_running_loop)
         self.g.threads_pool.submit(self.app_exit)
         self.g.threads_pool.submit(self.app_timeout)

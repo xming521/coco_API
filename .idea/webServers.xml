@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="af2a59c8-0f51-4c5e-8f30-acf2ab94f0c0" name="coco-demon" url="http://localhost">
+        <fileTransfer rootFolder="/home" accessType="SFTP" host="47.94.199.65" port="22" sshConfigId="870514b6-1438-4842-93b2-0ae28dbdd373" sshConfig="阿里网站root">
+          <advancedOptions>
+            <advancedOptions controlEncoding="utf-8" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+      <webServer id="4366667b-dcad-4284-9bff-a94ea4c1c2af" name="coco" url="http://localhost">
+        <fileTransfer rootFolder="/home" accessType="SFTP" host="47.94.199.65" port="22" sshConfigId="870514b6-1438-4842-93b2-0ae28dbdd373" sshConfig="阿里网站root">
+          <advancedOptions>
+            <advancedOptions controlEncoding="utf-8" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
