@@ -17,21 +17,30 @@ class RunApp:
         self.code = item.code
         self.timeout = item.timeout
         self.mount_dict = {
-            mount_path: {'bind': '/mnt', 'mode': 'rw'}  # 这是字典 mount_path挂载到/mnt/path
+            mount_path: {'bind': '/mnt', 'mode': 'rw'},  # 这是字典 mount_path挂载到/mnt/path
+            '/home/user_code/app/tensorflow_train/dataset': {'bind': '/root/.keras/datasets/', 'mode': 'rw'}
         }
-        self.envi_list = ["PYTHONUNBUFFERED=1"]
+        self.envi_list = ["PYTHONUNBUFFERED=1", f"APPNAME={self.app_name}"]
         if not os.path.exists(f"{mount_path}/{item.app_name}"):
             os.makedirs(f"{mount_path}/{item.app_name}/log")
 
         if item.run_type == 'first' or item.run_type == 'modified':  # todo  修改过的
             self.write_code()  # 写入文件
         db = g.db_pool.connection()
+        if self.app_name == 'FlaskApp':
+            ports = {
+                '5000/tcp': 5000
+            }
+        else:
+            ports = {}
+
         self.container = g.dc.containers.create(item.image_name,
                                                 f"python /mnt/{self.app_name}/{filename}",
                                                 detach=True,
                                                 volumes=self.mount_dict,
                                                 environment=self.envi_list,
-                                                network=item.network
+                                                network=item.network,
+                                                ports=ports
                                                 )
         start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
         if item.run_type == 'first':

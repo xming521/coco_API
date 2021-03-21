@@ -37,6 +37,14 @@ def submit(item: App_item):
             push.push_error(f"{item.app_name}已经创建了,请前往修改")
             db.close()
             return response_code.resp_200(data={"status": 0})
+    if item.run_type == 'modified':
+        cursor = db.cursor(cursor=pymysql.cursors.DictCursor)
+        cursor.execute(f"select status from app_list where app_name='{item.app_name}' ")
+        res = cursor.fetchall()[0]
+        if res['status'] == 'running':
+            push.push_error(f'请先停止{item.app_name}')
+            db.close()
+            return response_code.resp_200(data={"status": 1})
     app = RunApp(item)
     app.app_run()  # 使用异步 开启新协程
     db.close()
@@ -90,6 +98,7 @@ def app_stop(app_name: str):
     res = cursor.fetchall()[0]
     if res['status'] == 'stopped' or res['status'] == 'success' or res['status'] == 'error':
         push.push_error(f'{app_name}已经停止了')
+        db.close()
         return response_code.resp_200(data={"status": status})
     cursor.execute(f"select * from container_list where app_name='{app_name}' order by start_time desc limit 1")
     res = cursor.fetchall()[0]

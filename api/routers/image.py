@@ -38,6 +38,13 @@ def image_getlist():
     return response_code.resp_200(data={"res": res})
 
 
+@router.get('/image/getname')
+def image_getname():
+    temp1 = g.dc.images.list()
+    res = [i.tags[0] for i in temp1]
+    return response_code.resp_200(data={"res": res})
+
+
 @router.get('/image/delete')
 def image_delete(name: str):
     g.dc.images.remove(image=name)
