@@ -122,6 +122,15 @@ def app_stop(app_name: str):
     return response_code.resp_200(data={"status": status})
 
 
+@router.get("/app_delete")
+def app_delete(app_name: str):
+    db = g.db_pool.connection()
+    cursor = db.cursor()
+    cursor.execute(f"delete from app_list where app_name='{app_name}'")
+    cursor.execute(f"delete from container_list where app_name='{app_name}'")
+    db.close()
+    return response_code.resp_200(data={"status": 1})
+
 @router.get("/app_getinfo")
 def app_getinfo(app_name: str):
     db = g.db_pool.connection()

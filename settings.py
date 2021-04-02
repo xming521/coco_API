@@ -12,3 +12,6 @@ class Config():
 
 mount_path = '/home/user_code/app'  # 修改挂载目录就可以改整套系统的运行目录
 filename = 'main.py'
+fastapi_debug = True
+fastapi_deload = True
+fastapi_port = 8000

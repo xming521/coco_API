@@ -66,7 +66,7 @@ class RunApp:
 
     def app_run(self, **kw):
         self.container.start()
-        self.push.push_success(f"{self.app_name}启动成功")
+        self.push.push_success(f"{self.app_name}启动成功", {'refresh': True})
         self.g.threads_pool.submit(self.app_running_loop)
         self.g.threads_pool.submit(self.app_exit)
         self.g.threads_pool.submit(self.app_timeout)
@@ -77,8 +77,8 @@ class RunApp:
             for i in self.container.logs(stream=True, stderr=True, timestamps=False):
                 j = str(i, encoding="utf-8").replace('\b', '').replace('\r', '\n')
                 f.write(j)
-                await self.sm.emit('print_log', {'data': j})
-            await self.sm.emit('print_log', {'data': '运行结束'})
+                await self.sm.emit('print_log', {'data': j, 'app_name': self.app_name})
+            await self.sm.emit('print_log', {'data': '运行结束', 'app_name': self.app_name})
 
     def app_exit(self):  # 退出
         res = self.container.wait()
