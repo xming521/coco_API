@@ -65,17 +65,38 @@ class RunApp:
         loop.run_until_complete(self.app_running())
 
     def app_run(self, **kw):
+        from util import ThreadPool
         self.container.start()
         self.push.push_success(f"{self.app_name}启动成功", {'refresh': True})
         self.g.threads_pool.submit(self.app_running_loop)
         self.g.threads_pool.submit(self.app_exit)
         self.g.threads_pool.submit(self.app_timeout)
+        # todo 下面线程池捕获异常
+        self.g.threads_pool.submit(self.app_monitor).add_done_callback(ThreadPool.callbak)
         # print(len(threads_pool._threads)) 当前线程池使用线程数量
+
+    def app_monitor(self):
+        from util import dictToObj
+        for stat in self.container.stats(decode=True, stream=True):
+            if stat['precpu_stats'].get('system_cpu_usage') is None:
+                stat['precpu_stats']['system_cpu_usage'] = 0
+            memory_stats = dictToObj.dictToobj(stat['memory_stats'])
+            cpu_stats = dictToObj.dictToobj(stat['cpu_stats'])
+            precpu_stats = dictToObj.dictToobj(stat['precpu_stats'])
+            used_memory = memory_stats.usage - memory_stats.stats.cache
+            available_memory = memory_stats.limit
+            Memor_yusage = (used_memory / available_memory) * 100.0
+            cpu_delta = cpu_stats.cpu_usage.total_usage - precpu_stats.cpu_usage.total_usage
+            system_cpu_delta = cpu_stats.system_cpu_usage - precpu_stats.system_cpu_usage
+            number_cpus = cpu_stats.online_cpus
+            CPU_usage = (cpu_delta / system_cpu_delta) * number_cpus * 100.0
+            print(Memor_yusage, CPU_usage)
 
     async def app_running(self):
         with open(f'{mount_path}/{self.app_name}/log/{self.container.short_id}-log.txt', 'w+', buffering=1) as f:
             for i in self.container.logs(stream=True, stderr=True, timestamps=False):
                 j = str(i, encoding="utf-8").replace('\b', '').replace('\r', '\n')
+                # print(self.container.top())
                 f.write(j)
                 await self.sm.emit('print_log', {'data': j, 'app_name': self.app_name})
             await self.sm.emit('print_log', {'data': '运行结束', 'app_name': self.app_name})
