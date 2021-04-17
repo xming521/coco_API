@@ -53,7 +53,7 @@ def submit(item: App_item):
 
 @router.get("/app_list")
 def app_list():
-    db=g.db_pool.connection()
+    db = g.db_pool.connection()
     cursor = db.cursor(cursor=pymysql.cursors.DictCursor)
     cursor.execute(f"select * from app_list order by start_time desc")
     res: dict = cursor.fetchall()
@@ -131,6 +131,7 @@ def app_delete(app_name: str):
     db.close()
     return response_code.resp_200(data={"status": 1})
 
+
 @router.get("/app_getinfo")
 def app_getinfo(app_name: str):
     db = g.db_pool.connection()
@@ -141,6 +142,22 @@ def app_getinfo(app_name: str):
     res.update({'code': code})
     db.close()
     return response_code.resp_200(data={"res": res})
+
+
+@router.get("/app_getperformance")
+def app_getperformance(app_name: str):
+    db = g.db_pool.connection()
+    cursor = db.cursor(cursor=pymysql.cursors.DictCursor)
+    cursor.execute(f"select * from app_performance where app_name='{app_name}'")
+    res1: dict = cursor.fetchall()
+    res2 = []
+    for i in res1:
+        t1 = {'time': i['time'], 'type': 'Cpu', 'value': i['Cpu']}
+        t2 = {'time': i['time'], 'type': 'Memory', 'value': i['Memory']}
+        res2.append(t1)
+        res2.append(t2)
+    db.close()
+    return response_code.resp_200(data={"res": res2})
 
 
 @router.get("/app_getname")

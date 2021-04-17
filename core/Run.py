@@ -76,7 +76,9 @@ class RunApp:
         # print(len(threads_pool._threads)) 当前线程池使用线程数量
 
     def app_monitor(self):
+        db = self.g.db_pool.connection()
         from util import dictToObj
+        cur = db.cursor()
         for stat in self.container.stats(decode=True, stream=True):
             if stat['precpu_stats'].get('system_cpu_usage') is None:
                 stat['precpu_stats']['system_cpu_usage'] = 0
@@ -90,13 +92,17 @@ class RunApp:
             system_cpu_delta = cpu_stats.system_cpu_usage - precpu_stats.system_cpu_usage
             number_cpus = cpu_stats.online_cpus
             CPU_usage = (cpu_delta / system_cpu_delta) * number_cpus * 100.0
-            print(Memor_yusage, CPU_usage)
+            # print(Memor_yusage, CPU_usage)
+            cur_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+            sql_str = f"insert into app_performance(app_name,time,Cpu,Memory) " \
+                      f"values ('{self.app_name}','{cur_time}',{round(CPU_usage, 2)},{round(Memor_yusage, 2)}) "
+            cur.execute(sql_str)
+        db.close()
 
     async def app_running(self):
         with open(f'{mount_path}/{self.app_name}/log/{self.container.short_id}-log.txt', 'w+', buffering=1) as f:
             for i in self.container.logs(stream=True, stderr=True, timestamps=False):
                 j = str(i, encoding="utf-8").replace('\b', '').replace('\r', '\n')
-                # print(self.container.top())
                 f.write(j)
                 await self.sm.emit('print_log', {'data': j, 'app_name': self.app_name})
             await self.sm.emit('print_log', {'data': '运行结束', 'app_name': self.app_name})
