@@ -47,5 +47,14 @@ def image_getname():
 
 @router.get('/image/delete')
 def image_delete(name: str):
-    g.dc.images.remove(image=name)
+    # g.dc.images.remove(image=name)
+    return response_code.resp_200(data={"res": 1})
+
+
+@router.get('/image/build')
+def image_build(content: str):
+    file = open('/home/user_code/image_build/dockerfile', 'w')
+    file.write(content)
+    file.close()
+    g.dc.images.build(path="/home/user_code/image_build", dockerfile="dockerfile")
     return response_code.resp_200(data={"res": 1})

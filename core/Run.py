@@ -54,6 +54,7 @@ class RunApp:
         sql_str = f"insert into container_list(container_id,app_name,image_name,run_command,start_time) " \
                   f"values ('{self.container.short_id}','{self.app_name}','{item.image_name}','{item.run_command}','{start_time}') "
         cur.execute(sql_str)
+        cur.execute(f'delete from app_performance where app_name="{self.app_name}"')
         db.close()
 
     def write_code(self, **kw):
@@ -65,14 +66,14 @@ class RunApp:
         loop.run_until_complete(self.app_running())
 
     def app_run(self, **kw):
-        from util import ThreadPool
+        from util import ThreadPool_util
         self.container.start()
         self.push.push_success(f"{self.app_name}启动成功", {'refresh': True})
         self.g.threads_pool.submit(self.app_running_loop)
         self.g.threads_pool.submit(self.app_exit)
         self.g.threads_pool.submit(self.app_timeout)
         # todo 下面线程池捕获异常
-        self.g.threads_pool.submit(self.app_monitor).add_done_callback(ThreadPool.callbak)
+        self.g.threads_pool.submit(self.app_monitor).add_done_callback(ThreadPool_util.callback)
         # print(len(threads_pool._threads)) 当前线程池使用线程数量
 
     def app_monitor(self):

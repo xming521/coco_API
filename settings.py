@@ -10,6 +10,8 @@ class Config():
     sql_password = "38311eb4e582"
 
 
+admin_name = 'admin'
+admin_password = '123456'
 mount_path = '/home/user_code/app'  # 修改挂载目录就可以改整套系统的运行目录
 filename = 'main.py'
 fastapi_debug = True
