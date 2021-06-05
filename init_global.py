@@ -51,7 +51,7 @@ def init():
     g.threads_pool = ThreadPoolExecutor(max_workers=200)
     # 任务队列
     g.background_scheduler = BackgroundScheduler()
-    job_stores = {'default': SQLAlchemyJobStore(url='mysql+pymysql://root:38311eb4e582@47.94.199.65:3306/coco',
+    job_stores = {'default': SQLAlchemyJobStore(url='mysql+pymysql://root:38311eb4e582@8.140.133.102:3306/coco',
                                                 tablename='scheduler_jobs')}
     g.background_scheduler.configure(jobstores=job_stores)
     g.background_scheduler.start()

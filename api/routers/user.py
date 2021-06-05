@@ -14,8 +14,7 @@ class Item(BaseModel):
 
 @router.post("/login", tags=["users"])
 async def check_users(item: Item):
-    if (
-            item.username == "admin" or item.username == "tester" or item.username == "developer") and item.password == "123456":  # todo 密码
+    if (item.username == "admin" or item.username == "tester" or item.username == "developer") and item.password == "123456":  # todo 密码
         print(item.username)
         return response_code.resp_200(data={
             "token": create_access_token(item.username),
@@ -53,8 +52,3 @@ async def get_roles():
                                                                 "meta": {"title": "dashboard",
                                                                          "icon": "dashboard"}}]}]}]
     return response_code.resp_200(data=data)
-
-# @router.get("/get_routes", tags=["users"])
-# async def get_routes():
-#     data = [{"path": "/login"}]
-#     return response_code.resp_200(data=data)

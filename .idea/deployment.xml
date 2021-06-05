@@ -2,20 +2,6 @@
 <project version="4">
   <component name="PublishConfigData" autoUpload="Always" serverName="新阿里" remoteFilesAllowedToDisappearOnAutoupload="false" autoUploadExternalChanges="true">
     <serverData>
-      <paths name="coco">
-        <serverdata>
-          <mappings>
-            <mapping deploy="/coco_app" local="$PROJECT_DIR$" />
-          </mappings>
-        </serverdata>
-      </paths>
-      <paths name="coco-demon">
-        <serverdata>
-          <mappings>
-            <mapping deploy="/coco_app_demon" local="$PROJECT_DIR$" />
-          </mappings>
-        </serverdata>
-      </paths>
       <paths name="winserver">
         <serverdata>
           <mappings>
@@ -27,6 +13,20 @@
         <serverdata>
           <mappings>
             <mapping deploy="/tmp/pycharm_project_923" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="新阿里 demon">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/coco_app_demon" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="新阿里(项目级别)">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
           </mappings>
         </serverdata>
       </paths>
