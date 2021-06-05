@@ -5,9 +5,9 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 class Config():
     ACCESS_TOKEN_EXPIRE_MINUTES = 600
-    SECRET_KEY = 'zym233521'
-    sql_user = "root"
-    sql_password = "38311eb4e582"
+    SECRET_KEY = ''
+    sql_user = ""
+    sql_password = ""
 
 
 admin_name = 'admin'
