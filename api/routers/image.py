@@ -4,7 +4,6 @@ import docker
 from fastapi import APIRouter
 
 from api.utils import response_code
-from routers import push
 from util import ThreadPool_util
 
 router = APIRouter()
@@ -66,6 +65,7 @@ def dockerfile_loop(response):
 
 async def build_push(response):
     from main import socket_manager as sm
+    from api.routers import push
     for line in response:
         if line.get('stream'):
             print(line['stream'])

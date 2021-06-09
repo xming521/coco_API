@@ -44,9 +44,6 @@ def init():
         charset='utf8',
         autocommit=True
     )
-    # g.db = pymysql.connect(host=host, database='coco', autocommit=True, user=Config.sql_user,
-    #                        password=Config.sql_password,
-    #                        charset="utf8")
     g.dc = docker.from_env()
     g.threads_pool = ThreadPoolExecutor(max_workers=200)
     # 任务队列

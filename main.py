@@ -34,7 +34,6 @@ def connect(sid, namespace):
     from init_global import g
     g.person_online = True
     g.threads_pool.submit(push_realinfo)
-    # g.db.ping(reconnect=True)  # 保证始终有一个数据库连接
 
 
 @app.sio.event
@@ -42,11 +41,6 @@ def disconnect(sid):
     from init_global import g
     g.person_online = False
     pass
-
-
-@app.get("/items/{item_id}")
-async def read_item(item_id):
-    return {"item_id": item_id}
 
 
 @app.get("/", status_code=404)

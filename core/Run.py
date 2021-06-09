@@ -33,9 +33,12 @@ class RunApp:
             }
         else:
             ports = {}
-
+        if self.app_name == 'COVID_19_spider':
+            shell = f"/mnt/{self.app_name}/{filename}"
+        else:
+            shell = f"python /mnt/{self.app_name}/{filename}"
         self.container = g.dc.containers.create(item.image_name,
-                                                f"python /mnt/{self.app_name}/{filename}",
+                                                shell,
                                                 detach=True,
                                                 volumes=self.mount_dict,
                                                 environment=self.envi_list,

@@ -23,10 +23,9 @@ def getinfo():
     res['networks_count'] = len(g.dc.networks.list())
     cur = db.cursor(cursor=pymysql.cursors.DictCursor)
     cur.execute(f'select * from app_list order by start_time desc limit 10')
-    res['recent_event']=cur.fetchall()
+    res['recent_event'] = cur.fetchall()
     db.close()
     return response_code.resp_200(data={"res": res})
-
 
 
 def get_performance():
@@ -58,9 +57,9 @@ def get_performance():
     res['mem'] = m.percent
     res['disk'] = o.percent
     res['memoryTotal'] = memoryTotal
-    res['memoryUsed']=memoryUsed
+    res['memoryUsed'] = memoryUsed
     res['diskTotal'] = diskTotal
-    res['diskUsed']=diskUsed
+    res['diskUsed'] = diskUsed
     return res
 
 
@@ -73,23 +72,3 @@ def push_realinfo():
         # print(res)
         g.push_loop.run_until_complete(sm.emit('dashboard', {'data': res}))
         time.sleep(3)
-# 启动实时数据ws
-
-    # res.append(
-    #     {
-    #         'ttl': '内存状态',
-    #         'subtext': '总内存' + str(memoryTotal) + 'G',
-    #         'keys': ['已用', '剩余'],
-    #         'json': [{'value': memoryUsed, 'name': '已用'}, {'value': memoryFree, 'name': '剩余'}],
-    #         'pieBox': 'echartsMemory',
-    #         'suffix': 'G'
-    #     })
-    # res.append(
-    #     {
-    #         'ttl': '磁盘状态',
-    #         'subtext': str(diskCount) + '个分区.' + '共' + str(diskTotal) + 'G',
-    #         'keys': ['已使用', '未使用'],
-    #         'json': [{'value': diskUsed, 'name': '已使用'}, {'value': diskFree, 'name': '未使用'}],
-    #         'pieBox': 'echartsDisk',
-    #         'suffix': 'G'
-    #     })

@@ -3,6 +3,7 @@ from pydantic import BaseModel
 
 from api.utils import response_code
 from api.utils.security import create_access_token, check_jwt_token
+from settings import admin_password
 
 router = APIRouter()
 
@@ -14,7 +15,7 @@ class Item(BaseModel):
 
 @router.post("/login", tags=["users"])
 async def check_users(item: Item):
-    if (item.username == "admin" or item.username == "tester" or item.username == "developer") and item.password == "123456":  # todo 密码
+    if (item.username == "admin" or item.username == "tester" or item.username == "developer") and item.password == admin_password:  # todo 密码
         print(item.username)
         return response_code.resp_200(data={
             "token": create_access_token(item.username),
